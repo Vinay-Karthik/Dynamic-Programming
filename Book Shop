@@ -1,0 +1,48 @@
+//tabulation
+import java.util.Arrays;
+
+public class Main {
+    public static void main(String[] args) {
+        int numberOfBooks = 5;
+        int maxAmount = 10;
+
+        int[] prices = {5, 5, 5, 5, 5};
+        int[] pages = {10, 20, 30, 40, 50};
+
+        int[][] dp = new int[numberOfBooks + 1][maxAmount + 1];
+        for (int[] row : dp) {
+            Arrays.fill(row, -1);
+        }
+
+        System.out.print(
+                find(0, numberOfBooks, maxAmount, prices, pages, dp)
+        );
+    }
+
+    private static int find(
+            int index,
+            int numberOfBooks,
+            int maxAmount,
+            int[] prices,
+            int[] pages,
+            int[][] dp
+    ) {
+        if (index >= numberOfBooks) {
+            return 0;
+        }
+
+        if (dp[index][maxAmount] != -1) {
+            return dp[index][maxAmount];
+        }
+
+        int pick = 0;
+        if (maxAmount - prices[index] >= 0) {
+            pick = pages[index]
+                    + find(index + 1, numberOfBooks, maxAmount - prices[index], prices, pages, dp);
+        }
+
+        int notPick = find(index + 1, numberOfBooks, maxAmount, prices, pages, dp);
+
+        return dp[index][maxAmount] = Math.max(pick, notPick);
+    }
+}
