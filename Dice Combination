@@ -1,0 +1,141 @@
+Perfect, Vinay — let’s organize all four approaches you mentioned into clear Java programs. Each one solves a different variant of the **dice sum problem**:
+
+---
+
+## 1️⃣ Normal recursion (all ordered sequences)
+```java
+import java.util.*;
+
+public class DiceNormal {
+    public static void main(String[] args) {
+        int sum = 3;
+        int faces = 6;
+        int[] dp = new int[sum + 1];
+        Arrays.fill(dp, -1);
+
+        System.out.println(find(sum, dp, faces)); // Output: 4
+    }
+
+    private static int find(int sum, int[] dp, int faces) {
+        if (sum == 0) return 1;
+        if (dp[sum] != -1) return dp[sum];
+
+        int ans = 0;
+        for (int i = 1; i <= faces; i++) {
+            if (sum - i >= 0) {
+                ans += find(sum - i, dp, faces);
+            }
+        }
+        return dp[sum] = ans;
+    }
+}
+```
+👉 Counts ordered sequences (e.g. `[1,2]` and `[2,1]` both included).
+
+---
+
+## 2️⃣ Don’t repeat the combination (skip duplicates)
+```java
+import java.util.*;
+
+public class DiceNoDuplicates {
+    public static void main(String[] args) {
+        int sum = 3;
+        int faces = 6;
+        int[][] dp = new int[sum + 1][faces + 2];
+        for (int[] row : dp) Arrays.fill(row, -1);
+
+        System.out.println(find(sum, 1, dp, faces)); // Output: 3
+    }
+
+    private static int find(int sum, int minFace, int[][] dp, int faces) {
+        if (sum == 0) return 1;
+        if (dp[sum][minFace] != -1) return dp[sum][minFace];
+
+        int ans = 0;
+        for (int i = minFace; i <= faces; i++) {
+            if (sum - i >= 0) {
+                ans += find(sum - i, i, dp, faces); // enforce non-decreasing order
+            }
+        }
+        return dp[sum][minFace] = ans;
+    }
+}
+```
+👉 `[1,2]` is counted, `[2,1]` is skipped.
+
+---
+
+## 3️⃣ Face changes (no face can be reused)
+```java
+import java.util.*;
+
+public class DiceNoRepeatFace {
+    public static void main(String[] args) {
+        int sum = 6;
+        int faces = 6;
+        int[][] dp = new int[sum + 1][faces + 2];
+        for (int[] row : dp) Arrays.fill(row, -1);
+
+        System.out.println(count(sum, 1, faces, dp)); // Output: 4
+    }
+
+    private static int count(int sum, int startFace, int faces, int[][] dp) {
+        if (sum == 0) return 1;
+        if (startFace > faces) return 0;
+        if (dp[sum][startFace] != -1) return dp[sum][startFace];
+
+        int ans = 0;
+        for (int i = startFace; i <= faces; i++) {
+            if (sum - i >= 0) {
+                ans += count(sum - i, i + 1, faces, dp); // move forward, no reuse
+            }
+        }
+        return dp[sum][startFace] = ans;
+    }
+}
+```
+👉 Each face can only appear once in a combination.
+
+---
+
+## 4️⃣ Add the number of dice used (track dice count)
+```java
+import java.util.*;
+
+public class DiceWithCount {
+    public static void main(String[] args) {
+        int sum = 6;
+        int faces = 6;
+        int maxDice = 3; // constraint: use at most 3 dice
+
+        int[][][] dp = new int[sum + 1][faces + 2][maxDice + 1];
+        for (int[][] mat : dp) for (int[] row : mat) Arrays.fill(row, -1);
+
+        System.out.println(count(sum, 1, faces, maxDice, dp));
+    }
+
+    private static int count(int sum, int startFace, int faces, int diceLeft, int[][][] dp) {
+        if (sum == 0 && diceLeft >= 0) return 1;
+        if (sum < 0 || startFace > faces || diceLeft == 0) return 0;
+        if (dp[sum][startFace][diceLeft] != -1) return dp[sum][startFace][diceLeft];
+
+        int ans = 0;
+        for (int i = startFace; i <= faces; i++) {
+            ans += count(sum - i, i + 1, faces, diceLeft - 1, dp);
+        }
+        return dp[sum][startFace][diceLeft] = ans;
+    }
+}
+```
+👉 Adds a constraint on the number of dice used (e.g. “at most 3 dice”).
+
+---
+
+✨ So now you have **all four approaches**:
+1. Normal recursion (ordered sequences).  
+2. Skip duplicates (unique combos).  
+3. No face reuse (distinct faces only).  
+4. Track dice count (limit number of dice used).  
+
+Would you like me to also prepare a **comparison table** showing how the outputs differ for the same input (say `sum=6, faces=6`) across all four approaches?
