@@ -1,0 +1,54 @@
+// top down
+public class Main {
+    public static void main(String[] args) {
+        int amount = 11;
+        int[] coins = {1,2,5};
+        int[][] dp = new int[amount + 1][coins.length+1]; 
+
+        for (int[] row : dp) Arrays.fill(row, -2);
+
+        int res = find(amount,0,dp,coins);
+        System.out.println(res);
+    }
+
+    public static int find(int amount, int index, int[][] dp, int[] coins) {
+        if(amount==0){
+          return 1;
+        }
+        if(index>=coins.length) return 0;
+        if(dp[amount][index]!=-2){
+          return dp[amount][index];
+        }
+               int ans = 0;
+        // Option 1: use this coin
+        if (amount - coins[index] >= 0) {
+            ans += find(amount - coins[index], index, dp, coins);
+        }
+        // Option 2: skip this coin, move to next
+        ans += find(amount, index + 1, dp, coins);
+        return dp[amount][index]=ans;
+    }
+}
+
+//bottom up
+
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+        int amount = 11;
+        int[] coins = {1, 2, 5};
+
+        int[] dp = new int[amount + 1];
+        dp[0] = 1; // base case: one way to make sum 0
+
+        // Outer loop over coins ensures combinations (not permutations)
+        for (int coin : coins) {
+            for (int i = coin; i <= amount; i++) {
+                dp[i] += dp[i - coin];
+            }
+        }
+
+        System.out.println(dp[amount]); // Output: 11
+    }
+}
